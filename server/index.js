@@ -5,6 +5,7 @@ const app = express();
 const nodemailer = require('nodemailer');
 const fs = require('fs')
 var easyinvoice = require('easyinvoice');
+const PORT = 3001;
 
 const setData = async (invoiceid, date, name, products) => {
 
@@ -495,6 +496,6 @@ const updateOrderId = async (PrevOid, NewOid) => {
     })
 }
 
-app.listen(3001, () => {
-    console.log("Server started running and is listening to port 3001");
+app.listen(process.env.PORT || PORT, () => {
+    console.log(`Server started running and is listening to port ${PORT}`);
 });

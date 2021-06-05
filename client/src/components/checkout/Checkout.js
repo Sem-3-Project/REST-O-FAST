@@ -21,6 +21,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Snackbar from '@material-ui/core/Snackbar'
 import Axios from 'axios'
+import moment from 'moment';
 
 function Copyright() {
   return (
@@ -131,24 +132,43 @@ export default function Checkout() {
               setSnackbarMessage("CVV MUST BE EXACTLY 3 DIGITS LONG!")
             }
             else {
-              Axios.post('http://localhost:3001/api/checkCardCreds', {
-                name: name,
-                cno: cardNumber,
-                cvv: cvv,
-                expiry: expiry
-              }).then(res => {
-                if (res.data.success) {
-                  setOpenSnackbar(true)
-                  setSnackbarMessage("ACCESS GRANTED!")
-                  setTimeout(() => {
-                    setPersonDetails(res.data.data)
-                    handleNext()
-                  }, 2000);
-                } else {
-                  setOpenSnackbar(true)
-                  setSnackbarMessage("CARD DETAILS ENTERED ARE NOT CORRECT!")
+              var valid = moment(expiry, 'mm/yy', true)
+              var Validate = valid.isValid();
+              if (Validate) {
+                var year = parseInt(expiry.slice(-2))
+                var month = parseInt(expiry.substring(0, 2))
+                var actualY = parseInt((moment().format('yy')).slice(-2))
+                var actualM = parseInt(moment().format('MM'))
+
+                if ((year >= actualY) && (month >= actualM) && (month < 12)) {
+                  Axios.post('http://localhost:3001/api/checkCardCreds', {
+                    name: name,
+                    cno: cardNumber,
+                    cvv: cvv,
+                    expiry: expiry
+                  }).then(res => {
+                    if (res.data.success) {
+                      setOpenSnackbar(true)
+                      setSnackbarMessage("ACCESS GRANTED!")
+                      setTimeout(() => {
+                        setPersonDetails(res.data.data)
+                        handleNext()
+                      }, 2000);
+                    } else {
+                      setOpenSnackbar(true)
+                      setSnackbarMessage("CARD DETAILS ENTERED ARE NOT CORRECT!")
+                    }
+                  })
                 }
-              })
+                else {
+                  setOpenSnackbar(true)
+                  setSnackbarMessage("CARD IS OUT OF EXPIRY BOUNDS!")
+                }
+              }
+              else {
+                setOpenSnackbar(true)
+                setSnackbarMessage("EXPIRY DATE ENTERED IS INVALID!")
+              }
             }
           }
           else {
@@ -166,8 +186,6 @@ export default function Checkout() {
       setOpenSnackbar(true)
       setSnackbarMessage("All fields are compulsory!")
     }
-
-    //Axios.post('http://localhost:3000/api/checkCardDetails')
   }
 
   const closeSnackbarhandle = (event, reason) => {

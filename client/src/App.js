@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import Home from './components/home';
 import Login from './components/login';
 import ProductPage from './components/productpage';
@@ -8,6 +8,10 @@ import Checkout from './components/checkout/Checkout'
 
 
 function App() {
+  { document.title = "REST-O-FAST inc." }
+
+  const username = localStorage.getItem('Name')
+
   return (
     <Router>
       <Switch>
